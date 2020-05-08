@@ -31,35 +31,38 @@ public class SpaceObject {
     private String NedNotes;
     private String OpenNGCNotes;
 
+    private Coordinate coordinate;
+
     public SpaceObject(String[] items){
         if(items.length == 27) {
             //System.out.println("First Item: " + items[0]);
-            name = items[1];
-            type = items[2];
-            RA = items[3];
-            Dec = items[4];
-            Const = items[5];
-            MajAx = items[6];
-            MinAx = items[7];
-            PosAng = items[8];
-            BMag = items[9];
-            VMag = items[10];
-            JMag = items[11];
-            HMag = items[12];
-            KMag = items[13];
-            SurfBr = items[14];
-            Hubble = items[15];
-            CStarUMag = items[16];
-            CStarBMag = items[17];
-            CStarVMag = items[18];
-            M = items[19];
-            NGC = items[20];
-            IC = items[21];
-            CStarName = items[22];
-            Identifiers = items[23];
-            CommonName = items[24];
-            NedNotes = items[25];
-            OpenNGCNotes = items[26];
+            this.name = items[1];
+            this.type = items[2];
+            this.RA = items[3];
+            this.Dec = items[4];
+            this.Const = items[5];
+            this.MajAx = items[6];
+            this.MinAx = items[7];
+            this.PosAng = items[8];
+            this.BMag = items[9];
+            this.VMag = items[10];
+            this.JMag = items[11];
+            this.HMag = items[12];
+            this.KMag = items[13];
+            this.SurfBr = items[14];
+            this.Hubble = items[15];
+            this.CStarUMag = items[16];
+            this.CStarBMag = items[17];
+            this.CStarVMag = items[18];
+            this.M = items[19];
+            this.NGC = items[20];
+            this.IC = items[21];
+            this.CStarName = items[22];
+            this.Identifiers = items[23];
+            this.CommonName = items[24];
+            this.NedNotes = items[25];
+            this.OpenNGCNotes = items[26];
+            //this.coordinate = new Coordinate(Double.parseDouble(this.RA), Double.parseDouble(this.Dec));
         }else{
             System.err.println("MALFORMED");
         }
