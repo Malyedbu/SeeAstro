@@ -11,6 +11,14 @@ public class Coordinate {
         this.dec = dec;
     }
 
+    public double getRa(){
+        return this.ra;
+    }
+
+    public double getDec(){
+        return this.dec;
+    }
+
     public Coordinate(double raDeg, double raMin, double raSec, double decDeg, double decMin, double decSec){
         double ra = raDeg + (raMin / 60) + (raSec/3600);
         double dec = decDeg + (decMin / 60) + (decSec/3600);
@@ -18,8 +26,8 @@ public class Coordinate {
         this.dec = Math.toRadians(dec);
     }
 
-    public boolean canSee(double ra, double dec, double radianRange){
-        if (Math.abs(this.ra-ra) < radianRange && Math.abs(this.dec-dec) < radianRange){
+    public boolean canSee(Coordinate c, double radianRange){
+        if (Math.abs(this.ra-c.getRa()) < radianRange && Math.abs(this.dec-c.getDec()) < radianRange){
             return true;
         }
         return false;

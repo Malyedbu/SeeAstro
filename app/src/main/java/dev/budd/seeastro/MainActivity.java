@@ -12,10 +12,15 @@ import java.io.InputStreamReader;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final double VISIBLE_RANGE_RADIANS = 0.4;
 
     //Belrose lat/long
     int latDeg = 33;
@@ -48,33 +53,54 @@ public class MainActivity extends AppCompatActivity {
         int second = now.get(Calendar.SECOND);
 
         double ut = hour + minute / 60.0 + second / 3600.0;
-        //double JD = getJulDay(day, month, year, hour, minute, second);
         double JD = getJulDay(day, month, year, ut);
-        //System.out.println("JD: " + JD);
         double longitude = decimalFromDegrees(longDeg, longMin, longSec);
-        //System.out.println("Longitude: " + longitude);
         double GMST = gmSiderealTime(JD);
-        //System.out.println("GMST: " + GMST);
         double LMST = 24.0 * remainder((GMST + longitude / 15) / 24);
         double stHour = Math.floor(LMST);
         double stMin = Math.floor(60.0 * remainder(LMST));
         double stSec = Math.round(60 * (60 * remainder(LMST) - stMin));
-        //System.out.println("LMST: " + LMST);
         System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
 
 
+
         Coordinate zenith = new Coordinate(Math.toRadians(decimalFromDegrees(latDeg, latMin, latSec)), Math.toRadians(decimalFromDegrees(stHour, stMin, stSec)));
-        Coordinate object = new Coordinate(Double.parseDouble(tester2.getRA()), Double.parseDouble(tester2.getDec()));
-        if(zenith.canSee(Double.parseDouble(tester2.getRA()), Double.parseDouble(tester2.getDec()), 0.4)){
-            zenith.printCoordinate();
-            object.printCoordinate();
-            System.out.println("zenith can see " + tester2.getName());
-        }else{
-            zenith.printCoordinate();
-            object.printCoordinate();
-            System.out.println("zenith can't see " + tester2.getName());
+        List<SpaceObject> visibleObjects = visibleObjects(objects, zenith);
+        visibleObjects = sortBrightest(visibleObjects, 100);
+        for(SpaceObject o: visibleObjects){
+            System.out.println(o.getName() + " --- " + o.getBrightness());
         }
 
+
+    }
+
+    private ArrayList<SpaceObject> visibleObjects(ArrayList<SpaceObject> objectList, Coordinate zenith){
+        System.out.println("Checking if visible...");
+        ArrayList<SpaceObject> visible = new ArrayList<>();
+        for (SpaceObject obj: objectList){
+            if(!obj.isStar()) {
+                if (!obj.getRA().isEmpty() && !obj.getDec().isEmpty()) {
+                    Coordinate objCoordinate = new Coordinate(Double.parseDouble(obj.getRA()), Double.parseDouble(obj.getDec()));
+                    if (zenith.canSee(objCoordinate, VISIBLE_RANGE_RADIANS)) {
+                        visible.add(obj);
+                    }
+                }
+            }
+        }
+        System.out.println(visible.size() + " visible objects.");
+        return visible;
+    }
+
+    private List<SpaceObject> sortBrightest(List<SpaceObject> objectList, int count){
+        System.out.println("Sorting by brightness...");
+        Collections.sort(objectList, new Comparator<SpaceObject>() {
+            @Override
+            public int compare(SpaceObject o1, SpaceObject o2) {
+                return o1.getBrightness().compareTo(o2.getBrightness());
+            }
+        });
+        System.out.println("Returning top " + count + " brightest visible objects.");
+        return objectList.subList(0, count-1);
     }
 
     private double decimalFromDegrees(double deg, double min, double sec){

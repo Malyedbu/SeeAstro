@@ -1,5 +1,8 @@
 package dev.budd.seeastro;
 
+import java.time.Instant;
+import java.util.regex.Pattern;
+
 /**
  * NGC and IC space object
  */
@@ -81,6 +84,21 @@ public class SpaceObject {
     }
     public String getBMag(){
         return this.BMag;
+    }
+
+    public Double getBrightness(){
+        if(!this.VMag.isEmpty()){
+            return Double.parseDouble(this.VMag);
+        }else if(!this.BMag.isEmpty()) {
+            return Double.parseDouble(this.BMag);
+        }else if(!this.JMag.isEmpty() && !this.HMag.isEmpty() && !this.KMag.isEmpty()){
+            return (Double.parseDouble(this.JMag) + Double.parseDouble(this.HMag) + Double.parseDouble(this.KMag)) / 3;
+        }
+        return Double.MAX_VALUE;
+    }
+
+    public boolean isStar(){
+        return (this.type.charAt(0) == '*');
     }
 
 
