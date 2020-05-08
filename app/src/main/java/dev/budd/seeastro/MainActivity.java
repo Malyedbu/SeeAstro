@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
         double stSec = Math.round(60 * (60 * remainder(LMST) - stMin));
         System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
 
-
-
         Coordinate zenith = new Coordinate(Math.toRadians(decimalFromDegrees(latDeg, latMin, latSec)), Math.toRadians(decimalFromDegrees(stHour, stMin, stSec)));
         List<SpaceObject> visibleObjects = visibleObjects(objects, zenith);
         visibleObjects = sortBrightest(visibleObjects, 100);
@@ -74,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     *
+     * @param objectList list of all objects in the object csv file.
+     * @param zenith the coordinates for directly above the observer.
+     * @return all objects in the list which are visible to the observer.
+     */
     private ArrayList<SpaceObject> visibleObjects(ArrayList<SpaceObject> objectList, Coordinate zenith){
         System.out.println("Checking if visible...");
         ArrayList<SpaceObject> visible = new ArrayList<>();
@@ -91,6 +95,12 @@ public class MainActivity extends AppCompatActivity {
         return visible;
     }
 
+    /**
+     *
+     * @param objectList list of space objects to be sorted by brightness.
+     * @param count the amount of objects to return.
+     * @return a list of of count number space objects sorted by brightness.
+     */
     private List<SpaceObject> sortBrightest(List<SpaceObject> objectList, int count){
         System.out.println("Sorting by brightness...");
         Collections.sort(objectList, new Comparator<SpaceObject>() {
@@ -103,10 +113,19 @@ public class MainActivity extends AppCompatActivity {
         return objectList.subList(0, count-1);
     }
 
+    /**
+     * Converts deg,min,sec to decimal hours.
+     * @return decimal hours
+     */
     private double decimalFromDegrees(double deg, double min, double sec){
         return deg + (min / 60.0) + (sec / 3600.0);
     }
 
+    /**
+     * Reads the objects.csv file into a list of objects.
+     * The csv file contains NGC, IC and some other smaller catalogue items.
+     * @return Array list of space objects from the csv.
+     */
     private ArrayList<SpaceObject> readCSVIntoObjects(){
         ArrayList<SpaceObject> objects = new ArrayList<>();
         try{
@@ -133,6 +152,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Pretty print of a space object - TODO: Make this nicer and more informative.
+     * @param o the object to pretty print
+     */
     private void prettyPrintObject(SpaceObject o){
         System.out.print("Catalogue Name: " + o.getName());
         if(!o.getCommonName().matches("")){
@@ -144,6 +167,11 @@ public class MainActivity extends AppCompatActivity {
         printMagnitude(o);
         System.out.println("-----------------------------------------");
     }
+
+    /**
+     * Prints the RA and Dec of an object in D:M:S form
+     * @param o the object to print
+     */
     private void printRADec(SpaceObject o){
         double ra = Double.parseDouble(o.getRA());
         double dec = Double.parseDouble(o.getDec());
@@ -161,6 +189,11 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("-Coordinates: RA: " + raDeg + ":"+ raMin + ":"+ raSec + " Dec: "  + decDeg + ":"+ decMin + ":"+ decSec);
     }
 
+    /**
+     * If the object has visual magnitude or blue magnitude print it,
+     * other wise print no data available.
+     * @param o the object to print data on.
+     */
     private void printMagnitude(SpaceObject o){
         if(!o.getVMag().isEmpty()){
             System.out.println("-VMag: " + o.getVMag());
@@ -172,32 +205,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * BLEGH
+     * Get the julian day time from the current day, month, year, and decimal time.
+     * This function is full of magic numbers but unfortunately that is the nature of
+     * calculating Julian Day Numbers.
+     * @return the julian day number
      */
-    //private double getJulDay(int d, int m, int y, int hr, int min, int sec){
     private double getJulDay(int d, int m, int y, double u){
-        //System.out.println("CalculatingJD: " + " y: " + y + " m: " + m + " d: " + d + " hr: " + hr + " min: " + min + " sec: " + sec);
-        //System.out.println("CalculatingJD: " + " y: " + y + " m: " + m + " d: " + d + " ut: " + u);
         if (m <= 2){
             m+=12;
             y-=1;
         }
-
-        //return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d - 13 - 1524.5 + u / 24.0;
         int a = y/100;
         int b = a / 4;
         int c = 2-a+b;
         int e = (int) Math.floor(365.25*(y+4716));
         int f = (int) Math.floor(30.6001*(m+1));
         return c + d + e + f -1524.5 + u/24;
-
-//        double JDN = (1461 * (y + 4800 + (m - 14)/12))/4 + (367 * (m - 2 - 12 * ((m - 14)/12)))/12 - (3 * ((y + 4900 + (m - 14)/12)/100))/4 + d - 32075;
-//        JDN = JDN + ((hr-12) / 24) + (min / 1440) + (sec / 86400.0);
-//        return JDN;
-
-
     }
 
+    /**
+     * Once again more awful magic numbers.
+     * @param jd the current julian day time.
+     * @return the Greenwich mean sidereal time
+     */
     private double gmSiderealTime(double jd){
         //jd = 2458977.5548;
         double t_eph, ut, MJD0, MJD;
@@ -208,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
         return 6.697374558 + 1.0027379093 * ut + (8640184.812866 + (0.093104 - 0.0000062 * t_eph) * t_eph) * t_eph / 3600.0;
     }
 
+    /**
+     * gets the fraction left after removing the whole number from a double.
+     */
     private double remainder(double x){
         x=x-Math.floor(x);
         if(x < 0){

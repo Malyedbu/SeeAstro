@@ -26,11 +26,14 @@ public class Coordinate {
         this.dec = Math.toRadians(dec);
     }
 
-    public boolean canSee(Coordinate c, double radianRange){
-        if (Math.abs(this.ra-c.getRa()) < radianRange && Math.abs(this.dec-c.getDec()) < radianRange){
-            return true;
-        }
-        return false;
+    /**
+     *
+     * @param c the coordinate location to check if it is visible from the calling location.
+     * @param radianRange the range above the horizon to check.
+     * @return true if the object is within range.
+     */
+    boolean canSee(Coordinate c, double radianRange){
+        return Math.abs(this.ra - c.getRa()) < radianRange && Math.abs(this.dec - c.getDec()) < radianRange;
     }
 
     public void printCoordinate(){
