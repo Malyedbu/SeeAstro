@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">SeeAstro</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="run">Run</string>
+    <string name="number_of_results">Number of Results</string>
+    <string-array name="eastWest">
+        <item>E</item>
+        <item>W</item>
+    </string-array>
+    <string-array name="northSouth">
+        <item>N</item>
+        <item>S</item>
+    </string-array>
+    <string name="objectName">Name</string>
+    <string name="objectBrightness">Brightness</string>
+    <string name ="objectRADEC">RA/Dec</string>
 </resources>

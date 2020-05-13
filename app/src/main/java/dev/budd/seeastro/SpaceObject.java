@@ -86,6 +86,24 @@ public class SpaceObject {
         return this.BMag;
     }
 
+    public String getShortenedRADecString(){
+
+        double ra = Double.parseDouble(this.getRA());
+        double dec = Double.parseDouble(this.getDec());
+
+        double raDeg = Math.floor(Math.toDegrees(ra) / 15);
+        Double temp = ((Math.toDegrees(ra) / 15) - raDeg) * 60;
+        Double raMin = Math.floor(temp);
+        long raSec = Math.round((temp - raMin) * 60);
+
+        Double decDeg = Math.floor(Math.toDegrees(Math.abs(dec)));
+        Double temp2 = ((Math.toDegrees(Math.abs(dec))) - decDeg) * 60;
+        Double decMin = Math.floor(temp2);
+        long decSec = Math.round((temp2 - decMin) * 60);
+        decDeg = (dec < 0) ? decDeg *= -1 : decDeg;
+        return Math.round(raDeg) + ":"+ Math.round(raMin) + ":"+ Math.round(raSec) + " | "  + Math.round(decDeg) + ":"+ Math.round(decMin) + ":"+ Math.round(decSec);
+    }
+
     public Double getBrightness(){
         if(!this.VMag.isEmpty()){
             return Double.parseDouble(this.VMag);
