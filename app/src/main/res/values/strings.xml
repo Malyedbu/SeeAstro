@@ -13,6 +13,20 @@
         <item>S</item>
     </string-array>
     <string name="objectName">Name</string>
-    <string name="objectBrightness">Brightness</string>
+    <string name="objectBrightness">Mag</string>
+    <string name="objectType">Type</string>
     <string name ="objectRADEC">RA/Dec</string>
+
+    <string name ="userLatDeg">userLatDeg</string>
+    <string name ="userLatMin">userLatMin</string>
+    <string name ="userLatSec">userLatSec</string>
+    <string name ="userLongDeg">userLongDeg</string>
+    <string name ="userLongMin">userLongMin</string>
+    <string name ="userLongSec">userLongSec</string>
+    <string name ="userNorthSouth">userNorthSouth</string>
+    <string name ="userEastWest">userEastWest</string>
+
+    <string name ="defaultLatCompass">N</string>
+    <string name ="defaultLongCompass">E</string>
+
 </resources>

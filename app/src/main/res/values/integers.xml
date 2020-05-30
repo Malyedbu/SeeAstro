@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name ="defaultLatDeg">0</integer>
+    <integer name ="defaultLatMin">0</integer>
+    <integer name ="defaultLatSec">0</integer>
+    <integer name ="defaultLongDeg">0</integer>
+    <integer name ="defaultLongMin">0</integer>
+    <integer name ="defaultLongSec">0</integer>
+
+</resources>

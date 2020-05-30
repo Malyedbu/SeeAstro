@@ -49,40 +49,6 @@ public class Coordinate {
         this.decSec = decSec;
     }
 
-    /**
-     * TODO: This isnt working, I think convert to degrees then compare.
-     * @param c the coordinate location to check if it is visible from the calling location.
-     * @param radianRange the range above the horizon to check.
-     * @return true if the object is within range.
-     */
-    boolean canSee(Coordinate c, double radianRange){
-
-        double degreeRange = Math.toDegrees(radianRange);
-//        double cRA = Math.toDegrees(c.getRa());
-//        double cDec = Math.toDegrees(c.getDec());
-//        double otherRA = Math.toDegrees(this.getRa());
-//        double otherDec = Math.toDegrees(this.getDec());
-
-        double cRADeg = Math.floor(Math.toDegrees(c.getRa()) / 15);
-        double zRADeg = Math.floor(Math.toDegrees(this.getRa()) / 15);
-        double cDecDeg = Math.floor(Math.toDegrees(Math.abs(c.getDec())));
-        if(cDecDeg < 0){
-            cDecDeg = cDecDeg * -1;
-        }
-        double zDecDeg = Math.floor(Math.toDegrees(Math.abs(this.getDec())));
-        if(zDecDeg < 0){
-            zDecDeg = zDecDeg * -1;
-        }
-
-        System.out.println("Checking: " + cRADeg + ":" + zRADeg + " || "+ cDecDeg + ":"+ zDecDeg);
-        System.out.println("Ascension difference: " + Math.abs(cRADeg - zRADeg));
-        System.out.println("Declination difference: " + Math.abs(cDecDeg - zDecDeg));
-
-        return Math.abs(cRADeg - zRADeg) < degreeRange && Math.abs(cDecDeg - zDecDeg) < degreeRange;
-        //return Math.abs(cRA - otherRA) < degreeRange && Math.abs(cDec - otherDec) < degreeRange;
-        //return Math.abs(this.ra - c.getRa()) < radianRange && Math.abs(this.dec - c.getDec()) < radianRange;
-    }
-
     public void printCoordinate(){
 //        System.out.println("Radians:--------------");
 //        System.out.println("RA:" + ra + " DEC:" + dec);

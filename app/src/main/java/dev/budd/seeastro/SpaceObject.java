@@ -1,7 +1,8 @@
 package dev.budd.seeastro;
 
-import java.time.Instant;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * NGC and IC space object
@@ -35,6 +36,31 @@ public class SpaceObject {
     private String OpenNGCNotes;
 
     private Coordinate coordinate;
+
+    private final static Map<String, String> typeMap = new HashMap<>();
+    static {
+        typeMap.put("*", "Star");
+        typeMap.put("**", "Double star");
+        typeMap.put("*Ass", "Association of stars");
+        typeMap.put("OCl", "Open Cluster");
+        typeMap.put("GCl", "Globular Cluster");
+        typeMap.put("Cl+N", "Cluster + Nebula");
+        typeMap.put("G", "Galaxy");
+        typeMap.put("GPair", "Galaxy Pair");
+        typeMap.put("GTrpl", "Galaxy Triplet");
+        typeMap.put("GGroup", "Galaxy group");
+        typeMap.put("PN", "Planetary Nebula");
+        typeMap.put("HII", "HII Ionized region");
+        typeMap.put("DrkN", "Dark Nebula");
+        typeMap.put("EmN", "Emission Nebula");
+        typeMap.put("Neb", "Nebula");
+        typeMap.put("RfN", "Reflection Nebula");
+        typeMap.put("SNR", "Supernova remnant");
+        typeMap.put("Nova", "Nova");
+        typeMap.put("NonEx", "None");
+        typeMap.put("Dup", "Duplicate");
+        typeMap.put("Other", "Other");
+    }
 
     public SpaceObject(String[] items){
         if(items.length == 27) {
@@ -113,6 +139,14 @@ public class SpaceObject {
             return (Double.parseDouble(this.JMag) + Double.parseDouble(this.HMag) + Double.parseDouble(this.KMag)) / 3;
         }
         return Double.MAX_VALUE;
+    }
+
+    public String getType(){
+        String longType = typeMap.get(this.type);
+        if(!longType.isEmpty()){
+            return longType;
+        }
+        return "other";
     }
 
     public boolean isStar(){
