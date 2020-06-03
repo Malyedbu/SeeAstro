@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * NGC and IC space object
  */
-public class SpaceObject {
+class SpaceObject {
     private String name;
     private String type;
     private String RA;
@@ -143,8 +143,10 @@ public class SpaceObject {
 
     public String getType(){
         String longType = typeMap.get(this.type);
-        if(!longType.isEmpty()){
-            return longType;
+        if(longType != null) {
+            if (!longType.isEmpty()) {
+                return longType;
+            }
         }
         return "other";
     }
@@ -152,6 +154,16 @@ public class SpaceObject {
     public boolean isStar(){
         return (this.type.charAt(0) == '*');
     }
+    public boolean isOther(){ return (this.type.matches("Other"));}
+
+    public double getRAAsHours(){
+        return Math.floor(Math.toDegrees(Double.parseDouble(this.RA)) / 15);
+    }
+
+    public double getDecAsDegrees(){
+        return Math.floor(Math.toDegrees(Double.parseDouble(this.Dec)));
+    }
+
 
 
 }

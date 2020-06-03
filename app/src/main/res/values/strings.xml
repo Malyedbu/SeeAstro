@@ -3,15 +3,6 @@
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="run">Run</string>
-    <string name="number_of_results">Number of Results</string>
-    <string-array name="eastWest">
-        <item>E</item>
-        <item>W</item>
-    </string-array>
-    <string-array name="northSouth">
-        <item>N</item>
-        <item>S</item>
-    </string-array>
     <string name="objectName">Name</string>
     <string name="objectBrightness">Mag</string>
     <string name="objectType">Type</string>
@@ -28,5 +19,14 @@
 
     <string name ="defaultLatCompass">N</string>
     <string name ="defaultLongCompass">E</string>
+
+    <string name="toggleNorth">N</string>
+    <string name="toggleSouth">S</string>
+    <string name="toggleEast">E</string>
+    <string name="toggleWest">W</string>
+
+    <string name="hintDeg">Deg</string>
+    <string name="hintMin">Min</string>
+    <string name="hintSec">Sec</string>
 
 </resources>

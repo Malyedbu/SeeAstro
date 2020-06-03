@@ -35,7 +35,9 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                android:hint="@string/hintDeg"
+                android:autofillHints="@string/hintDeg" />
 
             <EditText
                 android:id="@+id/latitudeMinuteEditText"
@@ -44,7 +46,9 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                android:hint="@string/hintMin"
+                android:autofillHints="@string/hintMin" />
 
             <EditText
                 android:id="@+id/latitudeSecondEditText"
@@ -53,13 +57,18 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                android:hint="@string/hintSec"
+                android:autofillHints="@string/hintSec" />
 
-            <Spinner
-                android:id="@+id/dropDownSpinnerLatitude"
+            <ToggleButton
+                android:id="@+id/latCompassToggle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:checked="true"
+                android:textOn="@string/toggleNorth"
+                android:textOff="@string/toggleSouth"/>
 
         </LinearLayout>
 
@@ -84,7 +93,9 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                android:hint="@string/hintDeg"
+                android:autofillHints="@string/hintDeg" />
 
             <EditText
                 android:id="@+id/longitudeMinuteEditText"
@@ -93,7 +104,9 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                android:hint="@string/hintMin"
+                android:autofillHints="@string/hintMin" />
 
             <EditText
                 android:id="@+id/longitudeSecondEditText"
@@ -102,13 +115,18 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                android:hint="@string/hintSec"
+                android:autofillHints="@string/hintSec" />
 
-            <Spinner
-                android:id="@+id/dropDownSpinnerLongitude"
+            <ToggleButton
+                android:id="@+id/longCompassToggle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:checked="true"
+                android:textOn="@string/toggleEast"
+                android:textOff="@string/toggleWest"/>
         </LinearLayout>
 
 
@@ -133,7 +151,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:gravity="left"
+                    android:gravity="start"
                     android:text="@string/objectName" />
 
                 <TextView
@@ -145,7 +163,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:text="@string/objectName" />
             </TableLayout>
 
