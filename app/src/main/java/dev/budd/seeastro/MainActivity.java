@@ -2,14 +2,12 @@ package dev.budd.seeastro;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -22,20 +20,20 @@ import com.opencsv.CSVReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final double VISIBLE_RANGE_RADIANS = 0.1;
+    public static final boolean DEBUG = false;
+
     private static final double VISIBLE_RANGE_DEGREES = 45;
     private static  ArrayList<SpaceObject> SPACE_OBJECT_ARRAY_LIST;
 
@@ -53,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton latToggle;
     private ToggleButton longToggle;
 
-    int count = 0;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,10 +64,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    System.out.println(latToggle.getTextOn().toString());
                     latitudeChar = latToggle.getTextOn().toString();
                 }else{
-                    System.out.println(latToggle.getTextOff().toString());
                     latitudeChar = latToggle.getTextOff().toString();
                 }
 
@@ -83,16 +76,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    System.out.println(longToggle.getTextOn().toString());
                     longitudeChar = longToggle.getTextOn().toString();
                 }else{
-                    System.out.println(longToggle.getTextOff().toString());
                     longitudeChar = longToggle.getTextOff().toString();
                 }
             }
         });
 
-        setLocationPreferences();
         startAnalysis();
     }
 
@@ -127,10 +117,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * TODO: This is resource intensive, needs to be run off the main thread.
+     * 1. Gets the current settings for the user location preferences.
+     * 2. Calculates relevant information inorder to calculate the zenith.
+     * 3. Checks if each object is visible from the zenith.
+     * 4. Shows the visible astronomical objects.
+     */
     private void startAnalysis(){
-        //look for existing location preferences.
         setLocationPreferences();
-        System.out.println("analysing For: " + latDeg + ":" + latMin + ":" + latSec + latitudeChar + " " + longDeg + ":" + longMin + ":" + longSec + longitudeChar);
 
         Date currentTime = Calendar.getInstance().getTime();
         Calendar now = Calendar.getInstance();
@@ -151,23 +146,31 @@ public class MainActivity extends AppCompatActivity {
         double stHour = Math.floor(LMST);
         double stMin = Math.floor(60.0 * remainder(LMST));
         double stSec = Math.round(60 * (60 * remainder(LMST) - stMin));
-        System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
 
         double zenithRA = Math.toRadians(decimalFromDegrees(stHour, stMin, stSec));
         double zenithDec = Math.toRadians(getLatitude(latDeg, latMin, latSec));
         Coordinate zenith = new Coordinate(zenithRA, zenithDec);
-        System.out.println("Zenith in Raw: " + zenithRA + ":" + zenithDec);
-        System.out.println("Zenith in Deg: " + zenith.getZenithDecimalHours() + ":" + zenith.getDecimalDegrees());
+
         List<SpaceObject> visibleObjects = visibleObjects(SPACE_OBJECT_ARRAY_LIST, zenith);
         visibleObjects = sortBrightest(visibleObjects);
-        System.out.println("Brightest Object: " + visibleObjects.get(0).getName());
         if(visibleObjects.size() > 1000){
             addToView(visibleObjects.subList(0, 999));
         }else {
             addToView(visibleObjects);
         }
+
+        if (DEBUG){
+            System.out.println("User Location: " + latDeg + ":" + latMin + ":" + latSec + latitudeChar + " " + longDeg + ":" + longMin + ":" + longSec + longitudeChar);
+            System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
+            System.out.println("Zenith in Deg: " + zenith.getZenithDecimalHours() + ":" + zenith.getDecimalDegrees());
+            System.out.println("Number of visible objects: " + visibleObjects.size());
+            System.out.println("Brightest Object: " + visibleObjects.get(0).getName());
+        }
     }
 
+    /**
+     * Stores the last used location in preferences to preserve location over restarts.
+     */
     private void setLocationPreferences(){
         SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
         
@@ -204,8 +207,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * TODO: Need to work out a way to programatically set the N/S E/W spinners from here.
-     * TODO: I think we wont be able to use spinners.
+     * Sets the text on the screen to what is being used in the calculations.
      */
     private void showUsedLocation(){
 
@@ -232,7 +234,6 @@ public class MainActivity extends AppCompatActivity {
             longButton.toggle();
         }
 
-
     }
 
     /**
@@ -256,14 +257,12 @@ public class MainActivity extends AppCompatActivity {
 
     private double getLongitude(double deg, double min, double sec){
         if (longitudeChar.matches("W")){
-            System.out.println("negative longitude");
             deg *= -1;
         }
         return decimalFromDegrees(deg, min, sec);
     }
     private double getLatitude(double deg, double min, double sec){
         if (latitudeChar.matches("S")){
-            System.out.println("negative latitude");
             deg *= -1;
         }
         return decimalFromDegrees(deg, min, sec);
@@ -275,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
      * @return the Greenwich mean sidereal time
      */
     private double gmSiderealTime(double jd){
-        //jd = 2458977.5548;
         double t_eph, ut, MJD0, MJD;
         MJD = jd - 2400000.5;
         MJD0 = Math.floor(MJD);
@@ -285,32 +283,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param objectList list of all objects in the object csv file.
      * @param zenith the coordinates for directly above the observer.
      * @return all objects in the list which are visible to the observer.
      */
     private ArrayList<SpaceObject> visibleObjects(ArrayList<SpaceObject> objectList, Coordinate zenith){
-        System.out.print("Checking if visible with zenith: ");
-        zenith.printCoordinate();
-        System.out.println("Degree Range:" + Math.toDegrees(VISIBLE_RANGE_RADIANS));
         ArrayList<SpaceObject> visible = new ArrayList<>();
         for (SpaceObject obj: objectList){
             if (!obj.isOther() && !obj.isStar() && !obj.getRA().isEmpty() && !obj.getDec().isEmpty()) {
                 Coordinate objCoordinate = new Coordinate(Double.parseDouble(obj.getRA()), Double.parseDouble(obj.getDec()));
-                //if (coordinatesCanSee(zenith, objCoordinate, VISIBLE_RANGE_RADIANS)) {
-                //if (newNewCoordinatesCanSee(zenith, objCoordinate)) {
                 if (canSee(zenith, objCoordinate)) {
-                    System.out.println(obj.getName());
                     visible.add(obj);
                 }
             }
         }
-        System.out.println(visible.size() + " visible objects.");
-        //testCoordinates();
         return visible;
     }
 
+
+    /**
+     * @param zen the zenith RA/Dec coordinate object relative to the inputted lat/long
+     * @param obj the RA/Dec coordinate for the astronomical object
+     * @return True if the zenith and the object are within the global viewable range
+     */
     private boolean canSee(Coordinate zen, Coordinate obj){
         double alpha1;
         double alpha2;
@@ -358,17 +353,20 @@ public class MainActivity extends AppCompatActivity {
      * @return a list of of count number space objects sorted by brightness.
      */
     private List<SpaceObject> sortBrightest(List<SpaceObject> objectList){
-        System.out.println("Sorting by brightness...");
         Collections.sort(objectList, new Comparator<SpaceObject>() {
             @Override
             public int compare(SpaceObject o1, SpaceObject o2) {
                 return o1.getBrightness().compareTo(o2.getBrightness());
             }
         });
-        System.out.println("Returning top " + objectList.size() + " brightest visible objects.");
         return objectList;
     }
 
+    /**
+     *
+     * Shows the visible space objects on the screen in a useful fashion.
+     * @param objects list of visible SpaceObjects
+     */
     private void addToView(List<SpaceObject> objects){
         TableLayout tableLayout = findViewById(R.id.mainObjectTableLayout);
         tableLayout.removeAllViews();
@@ -424,8 +422,7 @@ public class MainActivity extends AppCompatActivity {
 
             name.setText(object.getName());
             type.setText(object.getType());
-            double betterBrightness = round(object.getBrightness(), 2);
-            brightness.setText(String.valueOf(betterBrightness));
+            brightness.setText(String.format(Locale.US, "%.2f", object.getBrightness()));
             radec.setText(object.getShortenedRADecString());
 
             objectRow.addView(name);
@@ -450,16 +447,17 @@ public class MainActivity extends AppCompatActivity {
      */
     public void setNewVariables(View v){
 
-        try{
-            EditText latD = findViewById(R.id.latitudeDegreeEditText);
-            EditText latM = findViewById(R.id.latitudeMinuteEditText);
-            EditText latS = findViewById(R.id.latitudeSecondEditText);
-            EditText longD = findViewById(R.id.longitudeDegreeEditText);
-            EditText longM = findViewById(R.id.longitudeMinuteEditText);
-            EditText longS = findViewById(R.id.longitudeSecondEditText);
-            ToggleButton latToggle = findViewById(R.id.latCompassToggle);
-            ToggleButton longToggle = findViewById(R.id.longCompassToggle);
 
+        EditText latD = findViewById(R.id.latitudeDegreeEditText);
+        EditText latM = findViewById(R.id.latitudeMinuteEditText);
+        EditText latS = findViewById(R.id.latitudeSecondEditText);
+        EditText longD = findViewById(R.id.longitudeDegreeEditText);
+        EditText longM = findViewById(R.id.longitudeMinuteEditText);
+        EditText longS = findViewById(R.id.longitudeSecondEditText);
+        ToggleButton latToggle = findViewById(R.id.latCompassToggle);
+        ToggleButton longToggle = findViewById(R.id.longCompassToggle);
+
+        try{
             latDeg = Integer.parseInt(latD.getText().toString());
             latMin = Integer.parseInt(latM.getText().toString());
             latSec = Integer.parseInt(latS.getText().toString());
@@ -469,35 +467,33 @@ public class MainActivity extends AppCompatActivity {
             latitudeChar = latToggle.getText().toString();
             longitudeChar = longToggle.getText().toString();
 
-            SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
+        }catch(NumberFormatException e){
+            e.printStackTrace(System.err);
+        }
 
-            editor.putInt(getString(R.string.userLatDeg), latDeg);
-            editor.putInt(getString(R.string.userLatMin), latMin);
-            editor.putInt(getString(R.string.userLatSec), latSec);
-            editor.putInt(getString(R.string.userLongDeg), longDeg);
-            editor.putInt(getString(R.string.userLongMin), longMin);
-            editor.putInt(getString(R.string.userLongSec), longSec);
-            editor.putString(getString(R.string.userNorthSouth), latitudeChar);
-            editor.putString(getString(R.string.userEastWest), longitudeChar);
+        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            editor.apply();
+        editor.putInt(getString(R.string.userLatDeg), latDeg);
+        editor.putInt(getString(R.string.userLatMin), latMin);
+        editor.putInt(getString(R.string.userLatSec), latSec);
+        editor.putInt(getString(R.string.userLongDeg), longDeg);
+        editor.putInt(getString(R.string.userLongMin), longMin);
+        editor.putInt(getString(R.string.userLongSec), longSec);
+        editor.putString(getString(R.string.userNorthSouth), latitudeChar);
+        editor.putString(getString(R.string.userEastWest), longitudeChar);
 
-            Map<String, ?> temp = sharedPreferences.getAll();
-            System.out.println("New Vars: " + temp);
+        editor.apply();
+
+        Map<String, ?> temp = sharedPreferences.getAll();
+        System.out.println("New Vars: " + temp);
 
             
-        }catch(NumberFormatException e){
 
-        }
         System.out.println("Set new variables...");
         startAnalysis();
     }
 
-    private boolean coordinatesCanSee(Coordinate zenith, Coordinate object, double range){
-        double degreeRange = Math.toDegrees(range);
-        return ((Math.abs(zenith.getDecDegrees() - object.getDecDegrees()) < degreeRange) && (Math.abs(zenith.getRADegrees() - object.getRADegrees()) < degreeRange));
-    }
 
     /**
      * Converts deg,min,sec to decimal hours.
@@ -522,74 +518,6 @@ public class MainActivity extends AppCompatActivity {
         return Math.round(raDeg) + ":"+ Math.round(raMin) + ":"+ Math.round(raSec) + " | "  + Math.round(decDeg) + ":"+ Math.round(decMin) + ":"+ Math.round(decSec);
     }
 
-    private double radianIntoHoursRadian(double ra){
-        double raDeg = Math.floor(Math.toDegrees(ra) / 15);
-        Double temp = ((Math.toDegrees(ra) / 15) - raDeg) * 60;
-        Double raMin = Math.floor(temp);
-        long raSec = Math.round((temp - raMin) * 60);
-        return decimalFromDegrees(raDeg, raMin, raSec);
-    }
-
-
-
-    /**
-     * Pretty print of a space object - TODO: Make this nicer and more informative should be moved to SpaceObject class.
-     * @param o the object to pretty print
-     */
-    private void prettyPrintObject(SpaceObject o){
-        System.out.print("Catalogue Name: " + o.getName());
-        if(!o.getCommonName().matches("")){
-            System.out.println(", Common Name: " + o.getCommonName());
-        }else{
-            System.out.println();
-        }
-        printRADec(o);
-        printMagnitude(o);
-        System.out.println("-----------------------------------------");
-    }
-
-    /**
-     * Prints the RA and Dec of an object in D:M:S form
-     * @param o the object to print
-     */
-    private void printRADec(SpaceObject o){
-        double ra = Double.parseDouble(o.getRA());
-        double dec = Double.parseDouble(o.getDec());
-
-        double raDeg = Math.floor(Math.toDegrees(ra) / 15);
-        Double temp = ((Math.toDegrees(ra) / 15) - raDeg) * 60;
-        Double raMin = Math.floor(temp);
-        long raSec = Math.round((temp - raMin) * 60);
-
-        double decDeg = Math.floor(Math.toDegrees(Math.abs(dec)));
-        Double temp2 = ((Math.toDegrees(Math.abs(dec))) - decDeg) * 60;
-        Double decMin = Math.floor(temp2);
-        long decSec = Math.round((temp2 - decMin) * 60);
-        if(decDeg < 0){
-            decDeg = decDeg * -1;
-        }
-        //decDeg = (dec < 0) ? decDeg *= -1 : decDeg;
-        System.out.println("-Coordinates: RA: " + raDeg + ":"+ raMin + ":"+ raSec + " Dec: "  + decDeg + ":"+ decMin + ":"+ decSec);
-    }
-
-
-
-    /**
-     * If the object has visual magnitude or blue magnitude print it,
-     * other wise print no data available.
-     * @param o the object to print data on.
-     * TODO: also print near infrared magnitude
-     */
-    private void printMagnitude(SpaceObject o){
-        if(!o.getVMag().isEmpty()){
-            System.out.println("-VMag: " + o.getVMag());
-        }else if(!o.getBMag().isEmpty()){
-            System.out.println("-BMag: " + o.getBMag());
-        }else{
-            System.out.println("No VMag or BMag data.");
-        }
-    }
-
     /**
      * gets the fraction left after removing the whole number from a double.
      */
@@ -600,36 +528,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return x;
     }
-
-
-
-    private static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
-
-    public class SpinnerActivity extends Activity implements AdapterView.OnItemSelectedListener{
-
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String letter = parent.getItemAtPosition(position).toString();
-            switch (letter){
-                case "N": latitudeChar = letter;
-                case "S": latitudeChar = letter;
-                case "E": longitudeChar = letter;
-                case "W": longitudeChar = letter;
-            }
-            System.out.println(letter);
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    }
-
 
 }

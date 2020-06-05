@@ -8,6 +8,9 @@ import java.util.Map;
  * NGC and IC space object
  */
 class SpaceObject {
+
+    private static final double PLACEHOLDER_MAXIMUM_MAGNITUDE = 99.99;
+
     private String name;
     private String type;
     private String RA;
@@ -138,7 +141,7 @@ class SpaceObject {
         }else if(!this.JMag.isEmpty() && !this.HMag.isEmpty() && !this.KMag.isEmpty()){
             return (Double.parseDouble(this.JMag) + Double.parseDouble(this.HMag) + Double.parseDouble(this.KMag)) / 3;
         }
-        return Double.MAX_VALUE;
+        return PLACEHOLDER_MAXIMUM_MAGNITUDE;
     }
 
     public String getType(){
