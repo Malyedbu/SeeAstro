@@ -1,13 +1,16 @@
 package dev.budd.seeastro;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ToggleButton latToggle;
     private ToggleButton longToggle;
+
+    Coordinate zenith;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,23 +154,67 @@ public class MainActivity extends AppCompatActivity {
 
         double zenithRA = Math.toRadians(decimalFromDegrees(stHour, stMin, stSec));
         double zenithDec = Math.toRadians(getLatitude(latDeg, latMin, latSec));
-        Coordinate zenith = new Coordinate(zenithRA, zenithDec);
+        zenith = new Coordinate(zenithRA, zenithDec);
 
-        List<SpaceObject> visibleObjects = visibleObjects(SPACE_OBJECT_ARRAY_LIST, zenith);
-        visibleObjects = sortBrightest(visibleObjects);
-        if(visibleObjects.size() > 1000){
-            addToView(visibleObjects.subList(0, 999));
-        }else {
-            addToView(visibleObjects);
-        }
+        new AnalysisTask().execute(SPACE_OBJECT_ARRAY_LIST);
+
+//        List<SpaceObject> visibleObjects = visibleObjects(SPACE_OBJECT_ARRAY_LIST, zenith);
+//        visibleObjects = sortBrightest(visibleObjects);
+//        if(visibleObjects.size() > 1000){
+//            addToView(visibleObjects.subList(0, 999));
+//        }else {
+//            addToView(visibleObjects);
+//        }
 
         if (DEBUG){
-            System.out.println("User Location: " + latDeg + ":" + latMin + ":" + latSec + latitudeChar + " " + longDeg + ":" + longMin + ":" + longSec + longitudeChar);
-            System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
-            System.out.println("Zenith in Deg: " + zenith.getZenithDecimalHours() + ":" + zenith.getDecimalDegrees());
-            System.out.println("Number of visible objects: " + visibleObjects.size());
-            System.out.println("Brightest Object: " + visibleObjects.get(0).getName());
+//            System.out.println("User Location: " + latDeg + ":" + latMin + ":" + latSec + latitudeChar + " " + longDeg + ":" + longMin + ":" + longSec + longitudeChar);
+//            System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
+//            System.out.println("Zenith in Deg: " + zenith.getZenithDecimalHours() + ":" + zenith.getDecimalDegrees());
+//            System.out.println("Number of visible objects: " + visibleObjects.size());
+//            System.out.println("Brightest Object: " + visibleObjects.get(0).getName());
         }
+    }
+
+    private class AnalysisTask extends AsyncTask<ArrayList<SpaceObject>, Void, List<SpaceObject>>{
+
+        protected void onPreExecute(){
+            TableLayout tableLayout = findViewById(R.id.mainObjectTableLayout);
+            tableLayout.removeAllViews();
+            showLoading();
+        }
+
+        @Override
+        protected List<SpaceObject> doInBackground(ArrayList<SpaceObject>... lists) {
+
+            ArrayList<SpaceObject> allObjects = lists[0];
+            List<SpaceObject> visibleObjects = visibleObjects(allObjects, zenith);
+            visibleObjects = sortBrightest(visibleObjects);
+            if(visibleObjects.size() > 1000){
+                return visibleObjects.subList(0, 999);
+            }else {
+                return visibleObjects;
+            }
+        }
+
+        protected void onPostExecute(List<SpaceObject> visibleObjects){
+            hideLoading();
+            addToView(visibleObjects);
+        }
+    }
+
+    private void showLoading(){
+        TextView loading = findViewById(R.id.loadingTextView);
+        loading.setVisibility(View.VISIBLE);
+        ViewGroup.LayoutParams params = loading.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        loading.setLayoutParams(params);
+    }
+    private void hideLoading(){
+        TextView loading = findViewById(R.id.loadingTextView);
+        loading.setVisibility(View.INVISIBLE);
+        ViewGroup.LayoutParams params = loading.getLayoutParams();
+        params.height = 0;
+        loading.setLayoutParams(params);
     }
 
     /**

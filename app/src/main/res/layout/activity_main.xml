@@ -136,6 +136,14 @@
             android:onClick="setNewVariables"
             android:text="@string/run" />
 
+        <TextView
+            android:id="@+id/loadingTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/loading"
+            tools:text="@string/loading" />
+
         <ScrollView
             android:id="@+id/mainObjectScrollView"
             android:layout_width="match_parent"
@@ -147,23 +155,6 @@
                 android:layout_height="wrap_content"
                 android:stretchColumns="1">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:text="@string/objectName" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/objectName" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:text="@string/objectName" />
             </TableLayout>
 
         </ScrollView>
