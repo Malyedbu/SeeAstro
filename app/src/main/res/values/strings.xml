@@ -4,10 +4,10 @@
     <string name="longitude">Longitude</string>
     <string name="run">Run</string>
     <string name="objectName">Name</string>
-    <string name="objectBrightness">Mag</string>
+    <string name="objectBrightness">Ma</string>
     <string name="objectType">Type</string>
     <string name ="objectRADEC">RA/Dec</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
 
     <string name ="userLatDeg">userLatDeg</string>
     <string name ="userLatMin">userLatMin</string>
@@ -29,5 +29,26 @@
     <string name="hintDeg">Deg</string>
     <string name="hintMin">Min</string>
     <string name="hintSec">Sec</string>
+
+    <string name="choose_types">Choose Types:</string>
+
+    <!--Object Types-->
+    <string name="star">Star</string>
+    <string name="double_star">Double Star</string>
+    <string name="open_cluster">Open Cluster</string>
+    <string name="globular_cluster">Globular Cluster</string>
+    <string name="galaxy">Galaxy</string>
+    <string name="galaxy_pair">Galaxy Pair</string>
+    <string name="galaxy_triplet">Galaxy Triplet</string>
+    <string name="galaxy_group">Galaxy Group</string>
+    <string name="planetary_nebula">Planetary Nebula</string>
+    <string name="hii_ionized_region">HII Ionized Region</string>
+    <string name="dark_nebula">Dark Nebula</string>
+    <string name="emission_nebula">Emission Nebula</string>
+    <string name="nebula">Nebula</string>
+    <string name="reflection_nebula">Reflection Nebula</string>
+    <string name="supernova_remnant">Supernova Remnant</string>
+    <string name="nova">Nova</string>
+
 
 </resources>

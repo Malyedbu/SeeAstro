@@ -146,10 +146,8 @@ class SpaceObject {
 
     public String getType(){
         String longType = typeMap.get(this.type);
-        if(longType != null) {
-            if (!longType.isEmpty()) {
+        if(longType != null && !longType.isEmpty()) {
                 return longType;
-            }
         }
         return "other";
     }

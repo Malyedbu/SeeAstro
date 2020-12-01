@@ -2,21 +2,31 @@ package dev.budd.seeastro;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.TextViewCompat;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
+
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+
+import android.widget.Space;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
 
 import com.opencsv.CSVReader;
 
@@ -26,11 +36,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+/** TODO:
+ *  Create settings page
+ *  Better popup when object is clicked
+ */
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final double VISIBLE_RANGE_DEGREES = 45;
     private static  ArrayList<SpaceObject> SPACE_OBJECT_ARRAY_LIST;
+    private static List<SpaceObject> VISIBLE_OBJECTS;
+    private static List<SpaceObject> SHOWING_OBJECTS;
 
     //Greenwich Default Longitude lat/long
     private int latDeg = 33;
@@ -56,40 +72,43 @@ public class MainActivity extends AppCompatActivity {
 
     Coordinate zenith;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+
+
         SPACE_OBJECT_ARRAY_LIST = readCSVIntoObjects();
         latToggle = findViewById(R.id.latCompassToggle);
         longToggle = findViewById(R.id.longCompassToggle);
 
-        latToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    latitudeChar = latToggle.getTextOn().toString();
-                }else{
-                    latitudeChar = latToggle.getTextOff().toString();
-                }
-
+        latToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                latitudeChar = latToggle.getTextOn().toString();
+            }else{
+                latitudeChar = latToggle.getTextOff().toString();
             }
+
         });
 
-        longToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    longitudeChar = longToggle.getTextOn().toString();
-                }else{
-                    longitudeChar = longToggle.getTextOff().toString();
-                }
+        longToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                longitudeChar = longToggle.getTextOn().toString();
+            }else{
+                longitudeChar = longToggle.getTextOff().toString();
             }
         });
 
         startAnalysis();
     }
+
 
     /**
      * Reads the objects.csv file into a list of objects.
@@ -123,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * TODO: This is resource intensive, needs to be run off the main thread.
+     *
      * 1. Gets the current settings for the user location preferences.
      * 2. Calculates relevant information inorder to calculate the zenith.
      * 3. Checks if each object is visible from the zenith.
@@ -158,21 +177,6 @@ public class MainActivity extends AppCompatActivity {
 
         new AnalysisTask().execute(SPACE_OBJECT_ARRAY_LIST);
 
-//        List<SpaceObject> visibleObjects = visibleObjects(SPACE_OBJECT_ARRAY_LIST, zenith);
-//        visibleObjects = sortBrightest(visibleObjects);
-//        if(visibleObjects.size() > 1000){
-//            addToView(visibleObjects.subList(0, 999));
-//        }else {
-//            addToView(visibleObjects);
-//        }
-
-        if (DEBUG){
-//            System.out.println("User Location: " + latDeg + ":" + latMin + ":" + latSec + latitudeChar + " " + longDeg + ":" + longMin + ":" + longSec + longitudeChar);
-//            System.out.println("LMST: " + "H:" + stHour + " M:" + stMin + " S:" + stSec);
-//            System.out.println("Zenith in Deg: " + zenith.getZenithDecimalHours() + ":" + zenith.getDecimalDegrees());
-//            System.out.println("Number of visible objects: " + visibleObjects.size());
-//            System.out.println("Brightest Object: " + visibleObjects.get(0).getName());
-        }
     }
 
     private class AnalysisTask extends AsyncTask<ArrayList<SpaceObject>, Void, List<SpaceObject>>{
@@ -198,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(List<SpaceObject> visibleObjects){
             hideLoading();
+            VISIBLE_OBJECTS = visibleObjects;
+            SHOWING_OBJECTS = visibleObjects;
             addToView(visibleObjects);
         }
     }
@@ -399,15 +405,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      *
      * @param objectList list of space objects to be sorted by brightness.
-     * @return a list of of count number space objects sorted by brightness.
+     * @return a list of of space objects sorted by brightness.
      */
     private List<SpaceObject> sortBrightest(List<SpaceObject> objectList){
-        Collections.sort(objectList, new Comparator<SpaceObject>() {
-            @Override
-            public int compare(SpaceObject o1, SpaceObject o2) {
-                return o1.getBrightness().compareTo(o2.getBrightness());
-            }
-        });
+        Collections.sort(objectList, (o1, o2) -> o1.getBrightness().compareTo(o2.getBrightness()));
         return objectList;
     }
 
@@ -433,11 +434,13 @@ public class MainActivity extends AppCompatActivity {
         headingList.add(brightnessHeading);
         headingList.add(RADecHeading);
         for (TextView tv: headingList){
-            tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 2f));
+            tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             tv.setGravity(Gravity.CENTER);
             tv.setTextSize(getResources().getDimension(R.dimen.tableHeadingTextSize));
-            headings.addView(tv);
+            TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tv, 15, 20, 1, TypedValue.COMPLEX_UNIT_SP);
             tv.setTextColor(getResources().getColor(R.color.lightBackground));
+            tv.setSingleLine();
+            headings.addView(tv);
         }
         headings.setBackgroundColor(getResources().getColor(R.color.headingBackground));
 
@@ -447,14 +450,15 @@ public class MainActivity extends AppCompatActivity {
         RADecHeading.setText(R.string.objectRADEC);
 
         tableLayout.addView(headings);
+
         int count = 0;
-        for(SpaceObject object: objects) {
+        for(final SpaceObject object: objects) {
             //System.out.println(object.getName() + ": " + degreeFromDecimal(Double.parseDouble(object.getRA()), Double.parseDouble(object.getDec())));
             TableRow objectRow = new TableRow(this);
             objectRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
             objectRow.setPadding(0, 20, 0, 20);
 
-            TextView name = new TextView(this);
+            final TextView name = new TextView(this);
             TextView type = new TextView(this);
             TextView brightness = new TextView(this);
             TextView radec = new TextView(this);
@@ -465,8 +469,11 @@ public class MainActivity extends AppCompatActivity {
             info.add(brightness);
             info.add(radec);
             for(TextView tv: info){
-                tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 2f));
+                tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
                 tv.setGravity(Gravity.CENTER);
+                tv.setTextSize(getResources().getDimension(R.dimen.tableContentTextSize));
+                TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tv, 9, 12, 1, TypedValue.COMPLEX_UNIT_SP);
+                tv.setSingleLine();
             }
 
             name.setText(object.getName());
@@ -485,6 +492,17 @@ public class MainActivity extends AppCompatActivity {
                 objectRow.setBackgroundColor(getResources().getColor(R.color.lightBackground));
             }
             count++;
+
+
+
+            objectRow.setOnClickListener(v -> {
+                String info1 =
+                          "Name: " + object.getName() + "\n"
+                        + "RA: " + object.getRA().substring(0, 5) + "\n"
+                        + "Dec: " + object.getDec().substring(0, 5);
+                Toast tst = Toast.makeText(getApplicationContext(), info1, Toast.LENGTH_SHORT);
+                tst.show();
+            });
 
             tableLayout.addView(objectRow);
         }
@@ -553,20 +571,6 @@ public class MainActivity extends AppCompatActivity {
         return deg + (min / 60.0) + (sec / 3600.0);
     }
 
-    private String degreeFromDecimal( double ra, double dec){
-        double raDeg = Math.floor(Math.toDegrees(ra) / 15);
-        Double temp = ((Math.toDegrees(ra) / 15) - raDeg) * 60;
-        Double raMin = Math.floor(temp);
-        long raSec = Math.round((temp - raMin) * 60);
-
-        Double decDeg = Math.floor(Math.toDegrees(Math.abs(dec)));
-        Double temp2 = ((Math.toDegrees(Math.abs(dec))) - decDeg) * 60;
-        Double decMin = Math.floor(temp2);
-        long decSec = Math.round((temp2 - decMin) * 60);
-        decDeg = (dec < 0) ? decDeg *= -1 : decDeg;
-        return Math.round(raDeg) + ":"+ Math.round(raMin) + ":"+ Math.round(raSec) + " | "  + Math.round(decDeg) + ":"+ Math.round(decMin) + ":"+ Math.round(decSec);
-    }
-
     /**
      * gets the fraction left after removing the whole number from a double.
      */
@@ -577,5 +581,81 @@ public class MainActivity extends AppCompatActivity {
         }
         return x;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+
+        getMenuInflater().inflate(R.menu.optionsmenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            case R.id.search_button:
+                System.out.println("Search");
+                return true;
+            case R.id.action_settings:
+                System.out.println("Settings");
+                return true;
+            case R.id.star:
+            case R.id.double_star:
+            case R.id.open_cluster:
+            case R.id.globular_cluster:
+            case R.id.galaxy:
+            case R.id.galaxy_pair:
+            case R.id.galaxy_triplet:
+            case R.id.galaxy_group:
+            case R.id.planetary_nebula:
+            case R.id.hii_ionized_region:
+            case R.id.dark_nebula:
+            case R.id.emission_nebula:
+            case R.id.nebula:
+            case R.id.reflection_nebula:
+            case R.id.supernova_remnant:
+            case R.id.nova:
+                item.setChecked(!item.isChecked());
+                showSpecificItems(item.getTitle().toString(), !item.isChecked());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * either removes or adds the selected items from the space objects that are shown
+     * @param itemType the type of item to be changed
+     * @param remove true if removing, false otherwise
+     */
+    private void showSpecificItems(String itemType, Boolean remove){
+        int i = 0;
+        List <SpaceObject> newObjects = SHOWING_OBJECTS;
+        System.out.println(VISIBLE_OBJECTS.size());
+
+        if (remove) {
+            while (i < newObjects.size()){
+                if(newObjects.get(i).getType().toLowerCase().matches(itemType.toLowerCase())){
+                    newObjects.remove(i);
+                }else{
+                    i++;
+                }
+            }
+        }else{
+            System.out.println("remove");
+            while(i < VISIBLE_OBJECTS.size()){
+                if(VISIBLE_OBJECTS.get(i).getType().toLowerCase().matches(itemType.toLowerCase())){
+                    newObjects.add(VISIBLE_OBJECTS.get(i));
+                }
+                i++;
+            }
+            newObjects = sortBrightest(newObjects);
+        }
+
+        SHOWING_OBJECTS = newObjects;
+        addToView(newObjects);
+
+    }
+
+
 
 }

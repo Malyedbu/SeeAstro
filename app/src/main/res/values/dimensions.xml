@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="tableHeadingTextSize">10sp</dimen>
+    <dimen name="tableHeadingTextSize">8sp</dimen>
+    <dimen name="tableContentTextSize">5sp</dimen>
 
 </resources>
