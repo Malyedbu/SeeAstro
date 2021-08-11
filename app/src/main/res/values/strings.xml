@@ -3,23 +3,25 @@
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="run">Run</string>
+    <string name="useMap">Use Map</string>
     <string name="objectName">Name</string>
     <string name="objectBrightness">Ma</string>
     <string name="objectType">Type</string>
-    <string name ="objectRADEC">RA/Dec</string>
+    <string name="objectRADEC">RA/Dec</string>
     <string name="loading">Loading…</string>
+    <string name="action_geolocate">Pick a Place</string>
 
-    <string name ="userLatDeg">userLatDeg</string>
-    <string name ="userLatMin">userLatMin</string>
-    <string name ="userLatSec">userLatSec</string>
-    <string name ="userLongDeg">userLongDeg</string>
-    <string name ="userLongMin">userLongMin</string>
-    <string name ="userLongSec">userLongSec</string>
-    <string name ="userNorthSouth">userNorthSouth</string>
-    <string name ="userEastWest">userEastWest</string>
+    <string name="userLatDeg">userLatDeg</string>
+    <string name="userLatMin">userLatMin</string>
+    <string name="userLatSec">userLatSec</string>
+    <string name="userLongDeg">userLongDeg</string>
+    <string name="userLongMin">userLongMin</string>
+    <string name="userLongSec">userLongSec</string>
+    <string name="userNorthSouth">userNorthSouth</string>
+    <string name="userEastWest">userEastWest</string>
 
-    <string name ="defaultLatCompass">N</string>
-    <string name ="defaultLongCompass">E</string>
+    <string name="defaultLatCompass">N</string>
+    <string name="defaultLongCompass">E</string>
 
     <string name="toggleNorth">N</string>
     <string name="toggleSouth">S</string>
@@ -49,6 +51,7 @@
     <string name="reflection_nebula">Reflection Nebula</string>
     <string name="supernova_remnant">Supernova Remnant</string>
     <string name="nova">Nova</string>
+    <string name="title_activity_maps">Map</string>
 
 
 </resources>

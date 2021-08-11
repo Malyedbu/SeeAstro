@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.TextViewCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
@@ -34,6 +35,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -106,7 +108,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        startAnalysis();
+        //startAnalysis();
+        runUpdate();
+
+
+    }
+
+    private void runUpdate(){
+        zenith = getZenith();
+        new AnalysisTask().execute(SPACE_OBJECT_ARRAY_LIST);
     }
 
 
@@ -142,13 +152,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * 1. Gets the current settings for the user location preferences.
      * 2. Calculates relevant information inorder to calculate the zenith.
-     * 3. Checks if each object is visible from the zenith.
-     * 4. Shows the visible astronomical objects.
      */
-    private void startAnalysis(){
+    private Coordinate getZenith(){
         setLocationPreferences();
 
         Date currentTime = Calendar.getInstance().getTime();
@@ -173,12 +180,14 @@ public class MainActivity extends AppCompatActivity {
 
         double zenithRA = Math.toRadians(decimalFromDegrees(stHour, stMin, stSec));
         double zenithDec = Math.toRadians(getLatitude(latDeg, latMin, latSec));
-        zenith = new Coordinate(zenithRA, zenithDec);
 
-        new AnalysisTask().execute(SPACE_OBJECT_ARRAY_LIST);
+        return new Coordinate(zenithRA, zenithDec);
 
     }
 
+    /**
+     * Async task to filter only items visible to users current Zenith.
+     */
     private class AnalysisTask extends AsyncTask<ArrayList<SpaceObject>, Void, List<SpaceObject>>{
 
         protected void onPreExecute(){
@@ -202,11 +211,21 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(List<SpaceObject> visibleObjects){
             hideLoading();
-            VISIBLE_OBJECTS = visibleObjects;
+
+            SpaceObject[] atom = new SpaceObject[visibleObjects.size()];
+            atom=visibleObjects.toArray(atom);
+            VISIBLE_OBJECTS = Arrays.asList(atom);
+            /**
+             * Note: the above janky round about way of filling VISIBLE OBJECTS is to stop the list
+             * from being modified. Even using Collections.unmodifiableList() wasn't preventing it.
+             * I cant even work out where the list was being modified but it was happening somewhere
+             * in the showSpecificItems function.
+             */
             SHOWING_OBJECTS = visibleObjects;
             addToView(visibleObjects);
         }
     }
+
 
     private void showLoading(){
         TextView loading = findViewById(R.id.loadingTextView);
@@ -324,6 +343,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Open map to select location
+     */
+    public void openMap(View v){
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
+    /**
      * Once again more awful magic numbers.
      * @param jd the current julian day time.
      * @return the Greenwich mean sidereal time
@@ -418,6 +445,8 @@ public class MainActivity extends AppCompatActivity {
      * @param objects list of visible SpaceObjects
      */
     private void addToView(List<SpaceObject> objects){
+        SHOWING_OBJECTS = objects;
+
         TableLayout tableLayout = findViewById(R.id.mainObjectTableLayout);
         tableLayout.removeAllViews();
         TableRow headings = new TableRow(this);
@@ -514,7 +543,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public void setNewVariables(View v){
 
-
         EditText latD = findViewById(R.id.latitudeDegreeEditText);
         EditText latM = findViewById(R.id.latitudeMinuteEditText);
         EditText latS = findViewById(R.id.latitudeSecondEditText);
@@ -555,10 +583,9 @@ public class MainActivity extends AppCompatActivity {
         Map<String, ?> temp = sharedPreferences.getAll();
         System.out.println("New Vars: " + temp);
 
-            
-
         System.out.println("Set new variables...");
-        startAnalysis();
+        runUpdate();
+
     }
 
 
@@ -629,13 +656,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showSpecificItems(String itemType, Boolean remove){
         int i = 0;
-        List <SpaceObject> newObjects = SHOWING_OBJECTS;
-        System.out.println(VISIBLE_OBJECTS.size());
+        //List<SpaceObject> newObjects = SHOWING_OBJECTS;
+        int x = VISIBLE_OBJECTS.size();
 
         if (remove) {
-            while (i < newObjects.size()){
-                if(newObjects.get(i).getType().toLowerCase().matches(itemType.toLowerCase())){
-                    newObjects.remove(i);
+            while (i < SHOWING_OBJECTS.size()){
+                if(SHOWING_OBJECTS.get(i).getType().toLowerCase().matches(itemType.toLowerCase())){
+                    SHOWING_OBJECTS.remove(i);
                 }else{
                     i++;
                 }
@@ -644,15 +671,15 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("remove");
             while(i < VISIBLE_OBJECTS.size()){
                 if(VISIBLE_OBJECTS.get(i).getType().toLowerCase().matches(itemType.toLowerCase())){
-                    newObjects.add(VISIBLE_OBJECTS.get(i));
+                    SHOWING_OBJECTS.add(VISIBLE_OBJECTS.get(i));
                 }
                 i++;
             }
-            newObjects = sortBrightest(newObjects);
+            SHOWING_OBJECTS = sortBrightest(SHOWING_OBJECTS);
         }
 
-        SHOWING_OBJECTS = newObjects;
-        addToView(newObjects);
+        //SHOWING_OBJECTS = newObjects;
+        addToView(SHOWING_OBJECTS);
 
     }
 

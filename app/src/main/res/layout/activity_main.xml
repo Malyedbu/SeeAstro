@@ -18,7 +18,8 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="4dp"
             app:titleTextColor="@android:color/white"
             android:background="@color/headingBackground">
 
@@ -139,6 +140,12 @@
                 android:textOff="@string/toggleWest"/>
         </LinearLayout>
 
+        <Button
+            android:id="@+id/useMapButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="openMap"
+            android:text="@string/useMap" />
 
         <Button
             android:id="@+id/runSearchButton"

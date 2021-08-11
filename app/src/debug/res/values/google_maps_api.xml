@@ -1,0 +1,24 @@
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=64:DE:0D:D5:72:4C:A5:0A:FC:8D:A3:36:4C:71:87:DA:E9:00:8E:76%3Bdev.budd.seeastro
+
+    You can also add your credentials to an existing key, using these values:
+
+    Package name:
+    dev.budd.seeastro
+
+    SHA-1 certificate fingerprint:
+    64:DE:0D:D5:72:4C:A5:0A:FC:8D:A3:36:4C:71:87:DA:E9:00:8E:76
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDskTjgiXh6eSiMlX8mwr-KJ3E2gvEaHX4</string>
+</resources>
